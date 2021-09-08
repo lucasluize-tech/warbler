@@ -1,0 +1,13 @@
+# Fix Logout
+
+Done. session.pop , flash and redirect implemented.
+
+# Fix User Profile
+
+Injected user location, bio and header_image to HTML templates
+
+# Fix User Cards
+
+Also Injected the user-bio into the necessary HTML templates
+
+
