@@ -18,7 +18,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 toolbar = DebugToolbarExtension(app)
 
@@ -115,9 +115,15 @@ def logout():
 
     # IMPLEMENT THIS
 
+    if CURR_USER_KEY in session:
+        session.pop(CURR_USER_KEY)
+        flash("Successfully logged out!", category="danger")
+        return redirect("/login")
+    return redirect('/login')
 
 ##############################################################################
 # General user routes:
+
 
 @app.route('/users')
 def list_users():
