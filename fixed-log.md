@@ -55,6 +55,13 @@
    
    Done. Dynamic number of likes, and if clicked will render page with all liked messages.
 
-## Part Three 
+## TIME :
+
+Started Wednesday 09/08/21 10:00 am
+Break same day at 3:00 pm
+
+Restarted Monday 09/13/21 10:00 am
+Endend Monday 09/13/21 5:15 pm
+
 
 
