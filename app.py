@@ -1,11 +1,10 @@
 import os
-
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm
-from models import db, connect_db, User, Message
+from forms import UserAddForm, LoginForm, MessageForm, UserEditForm
+from models import db, connect_db, User, Message, Likes, Follows
 
 CURR_USER_KEY = "curr_user"
 
@@ -216,8 +215,39 @@ def stop_following(follow_id):
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
     """Update profile for current user."""
+    # make sure user is logged in
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    form = UserEditForm()
+    
+    if form.validate_on_submit():
+        user = User.query.filter_by(id=g.user.id).first()
 
-    # IMPLEMENT THIS
+        # if user's password is correct , edit.
+        if User.authenticate(user.username, form.password.data):
+            try:
+                
+                user.username = form.username.data if form.username.data else user.username
+                user.email = form.email.data if form.email.data else user.email
+                user.image_url = form.image_url.data if form.image_url.data else user.image_url
+                user.header_image_url = form.header_image_url.data if form.header_image_url.data else user.header_image_url
+                user.bio = form.bio.data if form.bio.data else user.bio
+                db.session.add(user)
+                db.session.commit()
+
+                flash("Edited successfully!", 'success')
+                return redirect(f'/users/{g.user.id}')
+
+            except IntegrityError:
+                flash("Username already taken", 'danger')
+                return render_template('users/edit.html', form=form, user=g.user)
+        else:
+            flash("Invalid Password", 'danger')
+            return render_template('users/edit.html', form=form, user=g.user)
+    else:
+        return render_template('users/edit.html', form=form, user=g.user)
 
 
 @app.route('/users/delete', methods=["POST"])
@@ -296,15 +326,23 @@ def homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-
+    
     if g.user:
+        user_ids = []
+        for user in g.user.following:
+            user_ids.append(user.id)
+
         messages = (Message
                     .query
+                    .filter(Message.user_id.in_(user_ids))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
-
-        return render_template('home.html', messages=messages)
+        
+        likes = Likes.query.all()
+        
+        return render_template('home.html', messages=messages, 
+        likes=likes)
 
     else:
         return render_template('home-anon.html')
