@@ -54,3 +54,7 @@
 3. Profile page :
    
    Done. Dynamic number of likes, and if clicked will render page with all liked messages.
+
+## Part Three 
+
+
