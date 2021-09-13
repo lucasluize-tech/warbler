@@ -140,6 +140,40 @@ def list_users():
 
     return render_template('users/index.html', users=users)
 
+@app.route('/users/add_like/<int:msg_id>', methods=["POST"])
+def add_like(msg_id):
+    """ it Should add message to user liked messages when thumbs-up clicked """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    msg = Message.query.get_or_404(msg_id)
+    if msg not in g.user.likes:
+        liked_msg = Likes(user_id=g.user.id, message_id=msg_id)
+        db.session.add(liked_msg)
+        db.session.commit()
+        flash('You liked the message', 'success')
+        return redirect ('/')
+    
+    else:
+        Likes.query.filter(Likes.user_id == g.user.id, Likes.message_id == msg_id).delete()
+        db.session.commit()
+        flash('Unliked the message', 'primary')
+        return redirect ('/')
+
+@app.route('/users/<int:user_id>/likes')
+def show_likes(user_id):
+    """Show all liked messages from this user. """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+    return render_template('users/likes.html', user=user, liked_messages=user.likes)
+
+
 
 @app.route('/users/<int:user_id>')
 def users_show(user_id):
@@ -339,10 +373,10 @@ def homepage():
                     .limit(100)
                     .all())
         
-        likes = Likes.query.all()
+        # raise
         
         return render_template('home.html', messages=messages, 
-        likes=likes)
+        likes=g.user.likes)
 
     else:
         return render_template('home-anon.html')

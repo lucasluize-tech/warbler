@@ -41,3 +41,16 @@
     - What does @app.before_request mean?
         > It means this code will run before each request. So it will always add user to global.
 
+## Part Two
+
+1. Adding a like to user likes :  
+    
+    Done. Implemented add_like POST route, added user like to db.
+
+2. Like or dislike :
+   
+   Done. if Like exist for user delete like, else create.(used same route)
+
+3. Profile page :
+   
+   Done. Dynamic number of likes, and if clicked will render page with all liked messages.
